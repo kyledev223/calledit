@@ -1,0 +1,251 @@
+// Receipts — data model
+// Every award, reversal and void is a LedgerEntry row, so balances are auditable
+// by summing rows rather than trusting a cached number.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Chain {
+  SOLANA
+  EVM // reserved: wagmi + RainbowKit + SIWE can be added without a schema change
+}
+
+enum AssetCategory {
+  CRYPTO
+  TRADFI
+  MEMECOIN
+}
+
+enum PriceSource {
+  BINANCE
+  COINGECKO
+  YAHOO
+}
+
+enum Direction {
+  ABOVE
+  BELOW
+}
+
+enum CallStatus {
+  LIVE
+  PLAYED_OUT
+  MISSED
+  DELETED
+}
+
+enum LedgerReason {
+  AUTHOR_UPVOTE      // +2 to author per upvote when the call plays out
+  AUTHOR_BUYTHROUGH  // +5 to author per buy-through when the call plays out
+  BACKER_BUYTHROUGH  // +3 to each buy-through backer when the call plays out
+  REVERSAL           // negative row mirroring an award, when a played-out call is deleted
+  VOID               // admin removed points from a wallet before payout
+  ADJUSTMENT         // manual admin correction
+}
+
+model User {
+  id          String   @id @default(cuid())
+  wallet      String   @unique
+  chain       Chain    @default(SOLANA)
+  displayName String?  @db.VarChar(32)
+  isFlagged   Boolean  @default(false)
+  flagNote    String?
+  createdAt   DateTime @default(now())
+  lastSeenAt  DateTime @default(now())
+
+  sessions     Session[]
+  calls        Call[]
+  upvotes      Upvote[]
+  buyThroughs  BuyThrough[]
+  following    Follow[]       @relation("following")
+  followers    Follow[]       @relation("followers")
+  ledger       LedgerEntry[]
+  payouts      Payout[]
+  actions      ActionLog[]
+  linksA       WalletLink[]   @relation("linkA")
+  linksB       WalletLink[]   @relation("linkB")
+}
+
+model AuthNonce {
+  id        String   @id @default(cuid())
+  nonce     String   @unique
+  wallet    String
+  chain     Chain    @default(SOLANA)
+  issuedAt  DateTime @default(now())
+  expiresAt DateTime
+  usedAt    DateTime?
+
+  @@index([wallet])
+  @@index([expiresAt])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([userId])
+}
+
+model Asset {
+  id           String        @id @default(cuid())
+  symbol       String        @unique // what users see: BTC, AAPL, WIF
+  name         String
+  category     AssetCategory
+  source       PriceSource   // primary feed
+  sourceId     String        // BTCUSDT (Binance), bitcoin (CoinGecko), AAPL (Yahoo)
+  coingeckoId  String?       // fallback id for crypto when Binance is unavailable
+  decimals     Int           @default(2) // display precision for prices
+  isActive     Boolean       @default(true)
+  sortOrder    Int           @default(0)
+
+  calls Call[]
+}
+
+model Call {
+  id        String    @id @default(cuid())
+  authorId  String
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  assetId   String
+  asset     Asset     @relation(fields: [assetId], references: [id])
+  direction Direction
+  level     Decimal   @db.Decimal(24, 10)
+  expiresAt DateTime
+  // snapshot at posting time (used to validate side-of-price and shown on the card)
+  priceAtPost       Decimal     @db.Decimal(24, 10)
+  priceAtPostSource PriceSource
+  status    CallStatus @default(LIVE)
+
+  // resolution proof — what the resolver saw when it decided
+  resolvedAt       DateTime?
+  resolvedPrice    Decimal?    @db.Decimal(24, 10)
+  resolvedSource   PriceSource?
+  resolvedPriceAt  DateTime?   // the timestamp of the price observation itself
+  lastCheckedAt    DateTime?
+
+  createdAt DateTime  @default(now())
+  deletedAt DateTime?
+
+  upvotes     Upvote[]
+  buyThroughs BuyThrough[]
+  ledger      LedgerEntry[]
+
+  @@index([status, expiresAt])
+  @@index([authorId, createdAt])
+  @@index([createdAt])
+}
+
+model Upvote {
+  id        String   @id @default(cuid())
+  callId    String
+  call      Call     @relation(fields: [callId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([callId, userId])
+  @@index([userId])
+}
+
+model BuyThrough {
+  id        String   @id @default(cuid())
+  callId    String
+  call      Call     @relation(fields: [callId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([callId, userId])
+  @@index([userId])
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  follower    User     @relation("following", fields: [followerId], references: [id], onDelete: Cascade)
+  followingId String
+  following   User     @relation("followers", fields: [followingId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+  @@index([followingId])
+}
+
+model LedgerEntry {
+  id        String       @id @default(cuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  callId    String?
+  call      Call?        @relation(fields: [callId], references: [id], onDelete: SetNull)
+  delta     Int          // positive = award, negative = reversal/void
+  reason    LedgerReason
+  note      String?
+  // set when the row has been included in a payout
+  payoutId  String?
+  payout    Payout?      @relation(fields: [payoutId], references: [id], onDelete: SetNull)
+  createdAt DateTime     @default(now())
+
+  @@index([userId, createdAt])
+  @@index([callId])
+  @@index([payoutId])
+}
+
+model Payout {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  points      Int      // points settled by this payout
+  amount      Decimal  @db.Decimal(24, 10) // token amount sent
+  token       String   // e.g. USDC, SOL
+  rate        Decimal  @db.Decimal(24, 10) // tokens per point used at the time
+  txSignature String
+  paidAt      DateTime @default(now())
+  paidBy      String   // admin wallet that marked it
+  note        String?
+
+  entries LedgerEntry[]
+
+  @@index([userId])
+}
+
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+// Admin-flagged link between two wallets (same person / sybil). Neither may back the other's calls.
+model WalletLink {
+  id        String   @id @default(cuid())
+  userAId   String
+  userA     User     @relation("linkA", fields: [userAId], references: [id], onDelete: Cascade)
+  userBId   String
+  userB     User     @relation("linkB", fields: [userBId], references: [id], onDelete: Cascade)
+  note      String?
+  createdBy String
+  createdAt DateTime @default(now())
+
+  @@unique([userAId, userBId])
+  @@index([userBId])
+}
+
+// Append-only log used for per-wallet rate limiting (works across serverless instances).
+model ActionLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String   // "post" | "back" | "upvote"
+  createdAt DateTime @default(now())
+
+  @@index([userId, action, createdAt])
+}

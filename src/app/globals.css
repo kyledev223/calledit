@@ -1,0 +1,355 @@
+@import "tailwindcss";
+
+/*
+ * Theme: light pixel. Sky-blue page with a faint grid, white cards, black text,
+ * a single hot-pink accent, pixel display type, square everything.
+ */
+@theme {
+  --color-page: #b8dcff;       /* page background (sky blue) */
+  --color-bg2: #a6d2fc;        /* alternate section background */
+  --color-card: #ffffff;       /* card surface */
+  --color-lcd: #fff1f8;        /* inset "screen" panels */
+  --color-fg: #000000;         /* primary text */
+  --color-fg2: #4a4a4a;        /* secondary text */
+  --color-mute: #5c6470;       /* tertiary text, labels */
+  --color-line: rgba(230, 0, 126, 0.18);
+  --color-line2: rgba(230, 0, 126, 0.38);
+  --color-pink: #e6007e;       /* the accent (4.5:1 on white) */
+  --color-pink-deep: #9e0057;  /* button shadow, pressed */
+  --color-pink-hi: #ff1f93;    /* hover */
+  --color-pink-soft: rgba(230, 0, 126, 0.08);
+  --color-on-pink: #000000;    /* text on pink */
+  --color-warn: #b86e00;
+  --color-fire: #d03a0b;       /* errors, destructive */
+
+  --font-display: var(--font-pixelify), ui-monospace, system-ui, sans-serif;
+  --font-sans: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-martian), ui-monospace, "SF Mono", Menlo, monospace;
+
+  --animate-tick: tick 0.6s steps(6) both;
+  --animate-pulse-dot: pulse-dot 1.2s steps(2) infinite;
+  --animate-rise: rise 0.25s steps(4) both;
+
+  @keyframes tick {
+    from { transform: translateY(0.35em); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.25; }
+  }
+  @keyframes rise {
+    from { transform: translateY(6px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+  -webkit-text-size-adjust: 100%;
+  background: var(--color-page);
+}
+
+body {
+  background-color: var(--color-page);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Faint pink grid, fading out from the top of the page. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    linear-gradient(rgba(0, 48, 140, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 48, 140, 0.07) 1px, transparent 1px);
+  background-size: 32px 32px;
+  -webkit-mask: radial-gradient(circle at 50% 20%, #000, transparent 80%);
+  mask: radial-gradient(circle at 50% 20%, #000, transparent 80%);
+}
+
+body > * {
+  position: relative;
+  z-index: 1;
+}
+
+em {
+  font-style: normal;
+}
+
+::selection {
+  background: var(--color-pink);
+  color: var(--color-on-pink);
+}
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: 0.01em;
+}
+
+.font-mono,
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Components live in the components layer so utilities (e.g. md:hidden) can override them. */
+@layer components {
+  /* Headlines: uppercase pixel type; the accent half is pink, not italic. */
+  .headline {
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+  }
+  .headline em {
+    font-style: normal;
+    color: var(--color-pink);
+  }
+
+  .card {
+    background: var(--color-card);
+    border: 1px solid var(--color-line);
+  }
+
+  .card-hover {
+    transition: transform 80ms steps(2), border-color 150ms ease, box-shadow 80ms steps(2);
+  }
+  .card-hover:hover {
+    border-color: var(--color-line2);
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0 var(--color-line2);
+  }
+
+  /* Small pink section label, e.g. "THE TAPE". */
+  .eyebrow {
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-pink);
+  }
+
+  /* Boxed mono tag with a square bullet, e.g. "▪ a public tape for calls". */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font: 400 12px var(--font-mono);
+    color: var(--color-fg2);
+    border: 1px solid var(--color-line2);
+    padding: 6px 12px;
+    background: var(--color-card);
+  }
+  .tag::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    background: var(--color-pink);
+    flex-shrink: 0;
+  }
+
+  /* Dashed "x = y" keys under the hero copy. */
+  .kv {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    font: 400 13px var(--font-mono);
+    color: var(--color-fg2);
+    border: 1px dashed var(--color-line2);
+    padding: 6px 10px;
+    background: var(--color-card);
+    white-space: nowrap;
+  }
+  .kv b {
+    color: var(--color-pink);
+    font-weight: 500;
+  }
+
+  /* Pixel buttons: notched corners, hard offset shadow, press-in on click. */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 52px;
+    padding: 0 22px;
+    font: 600 16px var(--font-display);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border: 2px solid var(--color-pink);
+    color: var(--color-pink);
+    background: transparent;
+    box-shadow: 4px 4px 0 var(--color-pink-deep);
+    transition: transform 80ms, box-shadow 80ms, background-color 150ms;
+    white-space: nowrap;
+    cursor: pointer;
+    clip-path: polygon(
+      0 4px, 4px 4px, 4px 0, calc(100% - 4px) 0, calc(100% - 4px) 4px, 100% 4px,
+      100% calc(100% - 4px), calc(100% - 4px) calc(100% - 4px), calc(100% - 4px) 100%,
+      4px 100%, 4px calc(100% - 4px), 0 calc(100% - 4px)
+    );
+  }
+  .btn:not(:disabled):hover {
+    background: var(--color-pink-soft);
+  }
+  .btn:not(:disabled):active {
+    transform: translate(3px, 3px);
+    box-shadow: 1px 1px 0 var(--color-pink-deep);
+  }
+  .btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .btn-primary,
+  .btn-accent {
+    background: var(--color-pink);
+    color: var(--color-on-pink);
+  }
+  .btn-primary:not(:disabled):hover,
+  .btn-accent:not(:disabled):hover {
+    background: var(--color-pink-hi);
+  }
+  .btn-ghost {
+    /* outline variant: inherits the pink border/text from .btn */
+  }
+  .btn-sm {
+    height: 40px;
+    padding: 0 16px;
+    font-size: 14px;
+    box-shadow: 3px 3px 0 var(--color-pink-deep);
+  }
+
+  .input {
+    width: 100%;
+    background: var(--color-lcd);
+    border: 1px solid var(--color-line2);
+    padding: 0.7rem 0.9rem;
+    font-size: 0.9375rem;
+    color: var(--color-fg);
+    outline: none;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+  }
+  .input:focus {
+    border-color: var(--color-pink);
+    box-shadow: 3px 3px 0 var(--color-pink-deep);
+  }
+  .input::placeholder {
+    color: var(--color-mute);
+  }
+  .input[type="datetime-local"] {
+    color-scheme: light;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    white-space: nowrap;
+    border: 1px solid var(--color-line2);
+    background: transparent;
+    color: var(--color-fg);
+    padding: 0.3rem 0.65rem;
+    font: 500 0.75rem var(--font-mono);
+    letter-spacing: 0.02em;
+  }
+
+  .status-live { color: var(--color-pink); background: var(--color-pink-soft); border-color: var(--color-line2); }
+  .status-played { color: var(--color-on-pink); background: var(--color-pink); border-color: var(--color-pink); }
+  .status-missed { color: var(--color-mute); background: transparent; border-style: dashed; border-color: var(--color-mute); }
+
+  .rule {
+    height: 1px;
+    background: var(--color-line);
+  }
+
+  /* Mad-libs slots in the composer */
+  .slot {
+    display: inline-flex;
+    align-items: center;
+    border-bottom: 3px solid var(--color-line2);
+    padding: 0 0.1em;
+    min-width: 2ch;
+    transition: border-color 150ms ease;
+  }
+  .slot:focus-within,
+  .slot:hover {
+    border-color: var(--color-pink);
+  }
+  .slot select,
+  .slot input,
+  .slot button {
+    background: transparent;
+    border: 0;
+    outline: none;
+    font: inherit;
+    color: var(--color-pink);
+    padding: 0;
+    margin: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+  }
+  .slot select option {
+    background: var(--color-card);
+    color: var(--color-fg);
+  }
+  .slot input {
+    cursor: text;
+  }
+  .slot input::placeholder {
+    color: var(--color-mute);
+  }
+
+  /* FAQ: two-column grid of boxed questions with a pink arrow. */
+  details.faq {
+    background: var(--color-card);
+    border: 1px solid var(--color-line);
+  }
+  details.faq[open] {
+    border-color: var(--color-line2);
+  }
+  details.faq > summary {
+    list-style: none;
+    cursor: pointer;
+  }
+  details.faq > summary::-webkit-details-marker {
+    display: none;
+  }
+  .faq-icon {
+    transition: transform 120ms steps(2);
+  }
+  details.faq[open] .faq-icon {
+    transform: rotate(90deg);
+  }
+
+  /* Big dim echo of the hero headline above the footer. */
+  .echo {
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 0.92;
+    color: rgba(230, 0, 126, 0.1);
+    user-select: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
