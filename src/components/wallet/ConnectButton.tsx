@@ -107,6 +107,15 @@ function MenuLink({ href, children, onClick }: { href: string; children: React.R
   );
 }
 
+/**
+ * Wallet Standard wallets have no adapter of their own: they only appear in `wallets` once their
+ * extension is installed. List them here so people can still find an install link.
+ */
+const STANDARD_WALLET_LINKS = [
+  { name: "Backpack", url: "https://backpack.app/download" },
+  { name: "OKX Wallet", url: "https://www.okx.com/web3" },
+];
+
 function WalletPicker({ onClose, error, signingIn }: { onClose: () => void; error: string | null; signingIn: boolean }) {
   const { wallets, select, connect, wallet, connected, connecting } = useWallet();
   const [pending, setPending] = useState<string | null>(null);
@@ -124,7 +133,10 @@ function WalletPicker({ onClose, error, signingIn }: { onClose: () => void; erro
   const installed = wallets.filter(
     (w) => w.readyState === WalletReadyState.Installed || w.readyState === WalletReadyState.Loadable,
   );
-  const notInstalled = wallets.filter((w) => !installed.includes(w));
+  const notInstalled = [
+    ...wallets.filter((w) => !installed.includes(w)).map((w) => ({ name: String(w.adapter.name), url: w.adapter.url })),
+    ...STANDARD_WALLET_LINKS.filter((s) => !wallets.some((w) => w.adapter.name === s.name)),
+  ];
 
   return (
     <Modal onClose={onClose} title="Connect a wallet">
@@ -161,12 +173,12 @@ function WalletPicker({ onClose, error, signingIn }: { onClose: () => void; erro
       </ul>
       {notInstalled.length > 0 && (
         <details className="mt-4">
-          <summary className="text-xs text-mute cursor-pointer">Other wallets</summary>
+          <summary className="text-xs text-mute cursor-pointer">Other wallets: {notInstalled.map((w) => w.name).join(", ")}</summary>
           <ul className="mt-2 space-y-1">
             {notInstalled.map((w) => (
-              <li key={w.adapter.name}>
-                <a href={w.adapter.url} target="_blank" rel="noreferrer" className="text-sm text-fg2 hover:text-fg">
-                  Get {w.adapter.name} ↗
+              <li key={w.name}>
+                <a href={w.url} target="_blank" rel="noreferrer" className="text-sm text-fg2 hover:text-fg">
+                  Get {w.name} ↗
                 </a>
               </li>
             ))}
