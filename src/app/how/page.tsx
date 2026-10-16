@@ -14,7 +14,7 @@ export default function HowPage() {
         <Eyebrow className="mb-4">How it works</Eyebrow>
         <Heading as="h1" size="xl" lead="A claim," accent="then a record." />
         <p className="mt-6 text-lg text-fg2 max-w-2xl leading-relaxed">
-          Called It is a public tape. You write down what you think will happen, the market grades it, and the result stays
+          Called is a public tape. You write down what you think will happen, the market grades it, and the result stays
           attached to your wallet. Here is exactly how each part works.
         </p>
       </div>
@@ -127,7 +127,7 @@ export default function HowPage() {
         copy={
           <>
             <p>
-              Called It never holds or sends funds. Periodically an admin sets a points-to-token rate and the payout token,
+              Called never holds or sends funds. Periodically an admin sets a points-to-token rate and the payout token,
               exports unpaid balances, sends the tokens from their own wallet and pastes each transaction signature back in.
               Your profile then shows the amount paid with a link to the transaction on Solscan.
             </p>

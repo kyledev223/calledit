@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
+import { ContractAddress, SocialLinks } from "@/components/SocialLinks";
+import { SITE_NAME } from "@/lib/site";
 
 export const DISCLAIMER =
   "Points are a record of who was right. Payouts are discretionary and not guaranteed. Not financial advice.";
@@ -14,12 +17,16 @@ export function Footer() {
       <div className="border-t border-line">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-10 pb-9 flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
           <div className="max-w-md">
-            <Link href="/" className="font-display font-bold text-2xl">
-              Called It
+            <Link href="/" aria-label={`${SITE_NAME} home`}>
+              <Logo />
             </Link>
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <SocialLinks variant="label" />
+              <ContractAddress />
+            </div>
             <p className="mt-3 text-sm text-fg2 leading-relaxed">{DISCLAIMER}</p>
             <p className="mt-2 text-xs text-mute leading-relaxed">
-              Called It never holds funds and never asks your wallet to sign a transaction. Prices come from public market data
+              {SITE_NAME} never holds funds and never asks your wallet to sign a transaction. Prices come from public market data
               feeds and may be delayed.
             </p>
           </div>

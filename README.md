@@ -1,4 +1,4 @@
-# Called It
+# Called
 
 > Put it on the tape.
 
@@ -118,6 +118,8 @@ Copy `.env.example` to `.env` and fill in:
 | `CRON_SECRET` | yes | Bearer token the scheduler sends to `/api/cron/resolve` |
 | `COINGECKO_API_KEY` | no | CoinGecko demo/pro key for higher rate limits |
 | `COINGECKO_PRO` | no | `1` to use `pro-api.coingecko.com` |
+| `NEXT_PUBLIC_X_URL` | no | X profile URL for the X button. Can also be hard-coded in `src/lib/site.ts`. |
+| `NEXT_PUBLIC_PUMP_CA` | no | pump.fun contract address. The pump.fun button links to `https://pump.fun/coin/<CA>` and the footer shows the CA with a copy button. |
 
 Binance and Yahoo Finance need no keys. Binance's main API is geo-blocked in some regions
 (HTTP 451); the client tries `data-api.binance.vision` next and then falls back to CoinGecko.

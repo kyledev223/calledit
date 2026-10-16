@@ -5,6 +5,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ConnectButton } from "@/components/wallet/ConnectButton";
 import { formatCompactUsd, formatUsd } from "@/lib/format";
+import { Logo } from "@/components/Logo";
+import { SocialLinks } from "@/components/SocialLinks";
+import { SITE_NAME } from "@/lib/site";
 
 const links = [
   { href: "/feed", label: "Tape" },
@@ -47,8 +50,8 @@ export function Nav() {
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-page/[0.88] backdrop-blur-md">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 h-16 flex items-center gap-4">
-        <Link href="/" className="font-display text-2xl font-bold tracking-wide shrink-0">
-          Called It
+        <Link href="/" className="shrink-0" aria-label={`${SITE_NAME} home`}>
+          <Logo />
         </Link>
 
         <nav className="hidden md:flex items-center gap-1 ml-4">
@@ -67,6 +70,7 @@ export function Nav() {
 
         <div className="ml-auto flex items-center gap-2 sm:gap-3">
           <LivePill stats={stats} />
+          <SocialLinks className="hidden lg:flex" />
           <ConnectButton size="sm" />
           <button
             type="button"
@@ -88,6 +92,7 @@ export function Nav() {
             </Link>
           ))}
           <Link href="/you" className="block px-2 py-2.5 font-display text-[15px] text-fg2 hover:text-pink">You</Link>
+          <SocialLinks variant="label" className="px-2 pt-2 pb-3" />
         </nav>
       )}
     </header>
@@ -98,7 +103,7 @@ function LivePill({ stats }: { stats: Stats | null }) {
   return (
     <Link
       href="/feed?tab=live"
-      className="hidden min-[400px]:inline-flex items-center gap-2 border border-line2 px-2.5 sm:px-3 h-10 font-mono text-[11px] sm:text-xs text-fg2 hover:border-pink transition shrink-0"
+      className="hidden min-[400px]:inline-flex md:hidden lg:inline-flex items-center gap-2 bg-card border border-line2 px-2.5 sm:px-3 h-10 font-mono text-[11px] sm:text-xs text-fg2 hover:border-pink transition shrink-0"
       title="Live market and tape status"
     >
       <span className="size-1.5 bg-pink animate-pulse-dot shrink-0" aria-hidden />

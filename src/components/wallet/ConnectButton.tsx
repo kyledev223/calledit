@@ -188,7 +188,7 @@ function WalletPicker({ onClose, error, signingIn }: { onClose: () => void; erro
       {(localError || error) && <p className="mt-4 text-sm text-fire">{localError ?? error}</p>}
       <div className="mt-5 bg-bg2 p-3 text-xs text-fg2 leading-relaxed">
         <strong className="text-fg">Signing in is free. We never ask to move your funds.</strong> The message you sign says so
-        in plain words. Called It never requests a transaction, approval or delegation.
+        in plain words. Called never requests a transaction, approval or delegation.
       </div>
     </Modal>
   );

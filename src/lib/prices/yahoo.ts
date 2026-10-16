@@ -1,7 +1,7 @@
 import { PriceFeedError, type Quote, type Range, type Sparkline } from "./types";
 
 const HOSTS = ["https://query1.finance.yahoo.com", "https://query2.finance.yahoo.com"];
-const UA = "Mozilla/5.0 (compatible; CalledItBot/1.0)";
+const UA = "Mozilla/5.0 (compatible; CalledBot/1.0)";
 
 interface YahooChart {
   chart: {

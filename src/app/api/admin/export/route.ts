@@ -10,7 +10,7 @@ export const GET = handler(async () => {
   return new Response(csv, {
     headers: {
       "content-type": "text/csv; charset=utf-8",
-      "content-disposition": `attachment; filename="called-it-payouts-${new Date().toISOString().slice(0, 10)}.csv"`,
+      "content-disposition": `attachment; filename="called-payouts-${new Date().toISOString().slice(0, 10)}.csv"`,
     },
   });
 });

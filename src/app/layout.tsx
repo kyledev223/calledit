@@ -4,17 +4,18 @@ import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
+import { SITE_NAME } from "@/lib/site";
 
 const pixelify = Pixelify_Sans({ subsets: ["latin"], variable: "--font-pixelify", weight: ["400", "500", "600", "700"], display: "swap" });
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit", display: "swap" });
 const martian = Martian_Mono({ subsets: ["latin"], variable: "--font-martian", weight: ["400", "500"], display: "swap" });
 
 export const metadata: Metadata = {
-  title: { default: "Called It", template: "%s · Called It" },
+  title: { default: SITE_NAME, template: `%s · ${SITE_NAME}` },
   description:
     "A public tape for crypto, TradFi and memecoin calls. Post a level and a date. If it plays out, the record shows it, and points follow.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
-  openGraph: { title: "Called It", description: "Put it on the tape.", type: "website" },
+  openGraph: { title: SITE_NAME, description: "Put it on the tape.", type: "website" },
 };
 
 export const viewport: Viewport = {
