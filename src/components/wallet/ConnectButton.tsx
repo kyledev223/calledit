@@ -155,7 +155,7 @@ function WalletPicker({ onClose, error, signingIn }: { onClose: () => void; erro
         ))}
         {installed.length === 0 && (
           <li className="text-sm text-fg2 border border-dashed border-line2 p-4">
-            No Solana wallet detected. Install Phantom, Solflare or Backpack, then reload.
+            No Solana wallet detected. Install Phantom, Solflare, Backpack or OKX Wallet, then reload.
           </li>
         )}
       </ul>

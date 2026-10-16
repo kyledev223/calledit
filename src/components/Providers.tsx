@@ -13,7 +13,7 @@ import { SessionProvider } from "@/components/wallet/SessionProvider";
  * This app never sends a transaction through it; the only wallet call we make
  * is `signMessage` (see src/lib/auth/client.ts and tests/no-transaction.test.ts).
  *
- * Backpack (and any other Wallet Standard wallet) is detected automatically by
+ * Backpack, OKX Wallet and any other Wallet Standard wallet are detected automatically by
  * wallet-adapter-react, so only legacy adapters for Phantom and Solflare are
  * listed explicitly.
  *

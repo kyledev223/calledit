@@ -81,9 +81,12 @@ body::before {
   mask: radial-gradient(circle at 50% 20%, #000, transparent 80%);
 }
 
-body > * {
-  position: relative;
-  z-index: 1;
+/* Lift page content above the grid. In the base layer so utilities (sticky header, fixed modals) override it. */
+@layer base {
+  body > * {
+    position: relative;
+    z-index: 1;
+  }
 }
 
 em {
